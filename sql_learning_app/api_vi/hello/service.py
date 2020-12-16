@@ -2,8 +2,8 @@ from flask import current_app
 from datetime import datetime
 
 # Local Imports
-from sql_learning_app.config import db
 from .models import HelloModel
+from sql_learning_app.config import db
 
 
 class HelloMessageService:
@@ -17,7 +17,15 @@ class HelloMessageService:
         """INSERT a new Hello record to the DB
         :return: New Model
         """
-        # fetch the new datetime
+        # Set current time
         time = datetime.now()
         hello.created_at = time
-        self.db_session.add(hello.to_db())
+
+        # Write to DB
+        try:
+            db_model = hello.to_db()
+            self.db_session.add(db_model)
+            self.db_session.commit()
+            return HelloModel.from_db(db_model)
+        except Exception as err:
+            print(err)
