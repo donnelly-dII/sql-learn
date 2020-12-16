@@ -1,6 +1,7 @@
 from flask import Flask
 
 # Internal Packages
+from .config import DB_CONFIG
 from sql_learning_app.app import api_bp
 
 
