@@ -28,7 +28,7 @@ class HelloModel:
 
     def __init__(self, message: str, hello_id: int = None, created_at: str = None):
         self.message = message
-        self.id = hello_id
+        self.hello_id = hello_id
         self.created_at = created_at
 
     def to_rest(self) -> dict:
@@ -37,8 +37,16 @@ class HelloModel:
         """
         return HelloRestModel().dump(self)
 
+    def to_db(self) -> 'HelloDBModel':
+        db_model = HelloDBModel()
+        db_model.message = self.message
+        db_model.created_at = self.created_at
+        if self.hello_id:
+            db_model.hello_id = self.hello_id
+        return db_model
 
-class HelloDBSchema(db.Model):
+
+class HelloDBModel(db.Model):
     hello_id = db.Column(db.Integer, primary_key=True)
     message = db.Column(db.String(200), unique=True, nullable=False)
     created_at = db.Column(db.DateTime)
