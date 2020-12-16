@@ -3,6 +3,9 @@
 #
 from marshmallow import Schema, fields, post_load, ValidationError
 
+# Local imports
+from sql_learning_app.config import db
+
 
 class HelloRestModel(Schema):
     hello_id = fields.Integer()
@@ -35,5 +38,7 @@ class HelloModel:
         return HelloRestModel().dump(self)
 
 
-class HelloDBSchema:
-    pass
+class HelloDBSchema(db.Model):
+    hello_id = db.Column(db.Integer, primary_key=True)
+    message = db.Column(db.String(200), unique=True, nullable=False)
+    created_at = db.Column(db.DateTime)
