@@ -10,7 +10,7 @@ from sql_learning_app.api_vi.common import InvalidRequest
 
 class HelloRestModel(Schema):
     hello_id = fields.Integer()
-    message = fields.String()
+    message = fields.String(required=True)
     created_at = fields.DateTime()
 
     @post_load
@@ -20,7 +20,7 @@ class HelloRestModel(Schema):
         :return: HelloModel object
         """
         try:
-            return HelloModel(data['message'], hello_id=data['id'], created_at=data['created_at'])
+            return HelloModel(**data)
         except ValidationError as err:
             raise InvalidRequest(err, '/hello')
 
@@ -56,6 +56,7 @@ class HelloModel:
 
 
 class HelloDBModel(db.Model):
+    __tablename__ = 'Hello'
     hello_id = db.Column(db.Integer, primary_key=True)
     message = db.Column(db.String(200), unique=True, nullable=False)
     created_at = db.Column(db.DateTime)

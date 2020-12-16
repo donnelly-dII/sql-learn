@@ -24,6 +24,7 @@ class HelloMessageService:
         # Write to DB
         try:
             db_model = hello.to_db()
+            # print(db_model).__dict__
             self.db_session.add(db_model)
             self.db_session.commit()
             return HelloModel.from_db(db_model)

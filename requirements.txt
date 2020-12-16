@@ -3,3 +3,4 @@ flask_restful==0.3.8
 flask-mysql==1.5.1
 flask-sqlalchemy==2.4.4
 marshmallow==3.9.1
+cryptography==3.3.1

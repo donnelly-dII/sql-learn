@@ -22,7 +22,9 @@ class SQLConfiguration:
         self.MYSQL_DATABASE_DB = os.getenv('MYSQL_DATABASE_DB', DEFAULT_DB_NAME)
 
         # Construct the URI
-        self.URI = f'mysql://{self.MYSQL_DATABASE_HOST}:{self.MYSQL_DATABASE_PORT}/{self.MYSQL_DATABASE_DB}'
+        auth = f'{self.__db_user}:{self.__db_pw}'
+        db_path = f'{self.MYSQL_DATABASE_HOST}:{self.MYSQL_DATABASE_PORT}/{self.MYSQL_DATABASE_DB}'
+        self.URI = f'mysql+pymysql://{auth}@{db_path}'
 
     def __fetch_db_credentials(self):
         """Inspect environment for required DB auth credentials
@@ -41,5 +43,6 @@ class SQLConfiguration:
         :return: Return the DB object that will be bound to the current app
         """
         db = SQLAlchemy()
+        print(db.__dict__)
         # Create the user connection
         return db

@@ -1,1 +1,1 @@
-from .resources import HelloResource
+from .resources import HelloResource, HelloMessageResource
