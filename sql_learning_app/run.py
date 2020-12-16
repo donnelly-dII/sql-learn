@@ -1,7 +1,7 @@
 from flask import Flask
 
 # Internal Packages
-from .config import DB_CONFIG
+from .config import DB_CONFIG, db
 from sql_learning_app.app import api_bp
 
 
@@ -10,11 +10,12 @@ def create_app() -> Flask:
     flask_app.register_blueprint(api_bp)
 
     # DB configuration
+    app.config['SQLALCHEMY_DATABASE_URI'] = DB_CONFIG.URI
+    db.init_app(app)
 
     # Logger configuration
 
     return flask_app
-    pass
 
 
 if __name__ == "__main__":
