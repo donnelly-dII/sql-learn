@@ -50,11 +50,11 @@ class NotificationModel:
 
 
 class NotificationDBModel(db.Model):
+    __tablename__ = 'Notification'
     notification_id = db.Column(db.Integer, primary_key=True)
     created_on = db.Column(db.DateTime, nullable=False)
 
-    # Switch to Foreign Key when type created
-    notification_type_id = db.Column(db.Integer, nullable=False)
+    notification_type_id = db.relationship('NotificationType', backref='Notification', uselist=False, nullable=False)
 
     # Switch to Forgeign Key when created
     source_id = db.Column(db.Integer, db.ForeignKey('entity.id'), nullable=False)
