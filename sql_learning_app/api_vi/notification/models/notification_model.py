@@ -1,7 +1,6 @@
 #
 # notification.models.notification_model: DB, local, and REST Schema for the Notification model
 #
-from datetime import datetime
 from marshmallow import Schema, fields, post_load, ValidationError
 
 # Local imports
@@ -54,7 +53,7 @@ class NotificationDBModel(db.Model):
     notification_id = db.Column(db.Integer, primary_key=True)
     created_on = db.Column(db.DateTime, nullable=False)
 
-    notification_type_id = db.relationship('NotificationType', backref='Notification', uselist=False, nullable=False)
+    notification_type_id = db.Column(db.Integer, db.ForeignKey('NotificationType.notification_type_id'))
 
     # Switch to Forgeign Key when created
     source_id = db.Column(db.Integer, db.ForeignKey('entity.id'), nullable=False)

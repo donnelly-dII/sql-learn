@@ -79,3 +79,6 @@ class NotificationTypeDBModel(db.Model):
     created_on = db.Column(db.DateTime, nullable=False)
     entity_name = db.Column(db.String(50), nullable=False)
     entity_action = db.Column(db.String(50), nullable=False)
+
+    # Create one to many relationship with Notifications
+    db.relationhip('Notification', backref='NotificationType', lazy=True)
