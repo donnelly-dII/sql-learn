@@ -1,2 +1,3 @@
 from .hello_resource import HelloResource
 from .hello_message_resource import HelloMessageResource
+from .hello_message_id_resource import HelloMessageIdResource

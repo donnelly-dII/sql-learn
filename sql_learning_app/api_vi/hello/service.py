@@ -2,8 +2,12 @@ from flask import current_app
 from datetime import datetime
 
 # Local Imports
-from .models import HelloModel
+from .models import HelloModel, HelloDBModel
 from sql_learning_app.config import db
+
+# Local exceptions
+from .exceptions import HelloDoesntExist
+from sql_learning_app.api_vi.common import BaseApiException
 
 
 class HelloMessageService:
@@ -30,3 +34,16 @@ class HelloMessageService:
             return HelloModel.from_db(db_model)
         except Exception as err:
             print(err)
+
+    def get_by_id(self, hello_id: int):
+        """SELECT a Hello record by ID
+        :return: HelloModel oject by ID
+        :raises: HelloDoesntExist if the UID is not a valid primary key
+        """
+        try:
+            hello = HelloDBModel.query.get(hello_id)
+            if not hello:
+                raise HelloDoesntExist(hello_id)
+            return HelloModel.from_db(hello)
+        except Exception as err:
+            raise BaseApiException.from_exception(err)

@@ -43,6 +43,5 @@ class SQLConfiguration:
         :return: Return the DB object that will be bound to the current app
         """
         db = SQLAlchemy()
-        print(db.__dict__)
         # Create the user connection
         return db
