@@ -24,6 +24,7 @@ class NotificationTypeResource(Resource):
 
         self.notification_type_serializer = NotificationTypeRestModel()
         self.notification_type_service = NotificationTypeService()
+        print(self.notification_type_service.__dict__)
 
     def get(self):
         """GET operation to fetch all Hello World messages

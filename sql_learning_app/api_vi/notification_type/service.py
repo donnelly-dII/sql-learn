@@ -6,14 +6,14 @@ from flask import current_app
 
 # Local Imports
 from sql_learning_app.config import db
+from .excpetions import NotificationTypeDoesNotExist
+from sql_learning_app.api_vi.common import BaseApiException
 from .models import NotificationTypeModel, NotificationTypeDBModel
 
 
 class NotificationTypeService:
-
-    def __int__(self):
+    def __init__(self):
         self.logger = current_app.logger
-
         self.db_session = db.session
 
     def create_new_notification_type(self, notif_type: NotificationTypeModel) -> NotificationTypeModel:
@@ -26,12 +26,26 @@ class NotificationTypeService:
         notif_type.created_on = time
         # Write to DB
         try:
-            db_model = notif_type.to
-            db_model = hello.to_db()
-            # print(db_model).__dict__
+            db_model = notif_type.to_db()
             self.db_session.add(db_model)
             self.db_session.commit()
-            return HelloModel.from_db(db_model)
+            return NotificationTypeModel.from_db(db_model)
         except Exception as err:
             print(err)
 
+    def get_by_id(self, notification_type_id: int):
+        """SELECT a NotificationType record by ID
+        :param notification_type_id: UID of NotificationType
+        :return: NotificationType oject by ID
+        :raises: NotificationTypeDoesNotExist if the UID is not a valid primary key
+        """
+        try:
+            notification_type = NotificationTypeDBModel.query.get(notification_type_id)
+            if not notification_type:
+                self.logger.error(f'Failed to fetch NotificationType by ID {notification_type_id} becasue it '
+                                  f'does not exist')
+                raise NotificationTypeDoesNotExist(notification_type_id)
+            self.logger.info(f'NotificationType with id {notification_type_id} successfully fetched.')
+            return NotificationTypeModel.from_db(notification_type)
+        except Exception as err:
+            raise BaseApiException.from_exception(err)
