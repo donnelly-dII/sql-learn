@@ -32,13 +32,18 @@ class NotificationTypeRestModel(Schema):
 
 class NotificationTypeModel:
 
-    def __int__(self, entity_name: str, entity_action: str, notification_type_id: int = None, created_on: str = None):
+    def __init__(self, entity_name: str, entity_action: str,
+                 notification_type_id: int = None, created_on: str = None):
+        """Constructor for a NotificationTypeModel
+        :param entity_name: Name of entity creating notification
+        :param entity_action: Action taken on entity to create notification
+        :param notification_type_id: primary key uid of notification_type
+        :param created_on: date notification type added to DB
+        """
         self.entity_name = entity_name
         self.entity_action = entity_action
-
-        # Optional parameters
-        self.notification_type_id = fields.Integer()
-        self.created_on = fields.DateTime()
+        self.notification_type_id = notification_type_id
+        self.created_on = created_on
 
     def to_rest(self) -> dict:
         """Convert data to REST model
