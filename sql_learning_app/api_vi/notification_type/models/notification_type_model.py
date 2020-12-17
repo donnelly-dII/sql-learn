@@ -1,6 +1,7 @@
 #
 # notification_type.models.notification_type_model: DB, local, and REST Schema for the NotificationType model
 #
+
 from marshmallow import Schema, fields, post_load, ValidationError
 
 # Local imports
@@ -26,20 +27,12 @@ class NotificationTypeRestModel(Schema):
         try:
             return NotificationTypeModel(**data)
         except ValidationError as err:
-            path = kwargs['path'] if 'path' in kwargs.keys() else None
-            raise InvalidRequest(err, path)
+            raise InvalidRequest(err)
 
 
 class NotificationTypeModel:
 
-    def __int__(self, entity_name: str, entity_action: str,
-                notification_type_id: int = None, created_on: str = None):
-        """Constructor for a NotificationType
-        :param entity_name: Name of DB entity that triggers a Notification of this type
-        :param entity_action: The action taken on this entity that creates a notification
-        :param notification_type_id: Primary Key ID of entity type
-        :param created_on: Date entity type was created
-        """
+    def __int__(self, entity_name: str, entity_action: str, notification_type_id: int = None, created_on: str = None):
         self.entity_name = entity_name
         self.entity_action = entity_action
 
@@ -47,9 +40,36 @@ class NotificationTypeModel:
         self.notification_type_id = fields.Integer()
         self.created_on = fields.DateTime()
 
+    def to_rest(self) -> dict:
+        """Convert data to REST model
+        :return: dict of model data that can be sent via API return
+        """
+        return NotificationTypeRestModel().dump(self)
+
+    def to_db(self) -> 'NotificationTypeDBModel':
+        """Converts to DB model
+        :return: NotificationTypeDBModel that matches this model
+        """
+        db_model = NotificationTypeDBModel()
+        db_model.created_on = self.created_on
+        db_model.entity_name = self.entity_name
+        db_model.entity_action = self.entity_action
+        if self.notification_type_id:
+            db_model.notification_type_id = self.notification_type_id
+        return db_model
+
+    @classmethod
+    def from_db(cls, db_model: 'NotificationTypeDBModel') -> 'NotificationTypeModel':
+        """Constructor from a DB Model
+        :param db_model:
+        :return:
+        """
+        return NotificationTypeModel(db_model.entity_name, db_model.entity_action,
+                                     db_model.notification_type_id, db_model.created_on)
+
 
 class NotificationTypeDBModel(db.Model):
-
+    __tablename__ = 'NotificationType'
     notification_type_id = db.Column(db.Integer, primary_key=True)
     created_on = db.Column(db.DateTime, nullable=False)
     entity_name = db.Column(db.String(50), nullable=False)

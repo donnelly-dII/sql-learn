@@ -22,7 +22,8 @@ class HelloRestModel(Schema):
         try:
             return HelloModel(**data)
         except ValidationError as err:
-            raise InvalidRequest(err, '/hello')
+            path = kwargs.get('path', None)
+            raise InvalidRequest(err, path)
 
 
 class HelloModel:
