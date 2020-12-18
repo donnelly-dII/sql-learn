@@ -17,7 +17,6 @@ class NotificationRestModel(Schema):
 
     # Optional parameters
     notification_id = fields.Integer()
-    created_on = fields.DateTime()
 
     @post_load
     def make_notification_model(self, data: dict, **kwargs) -> 'NotificationModel':
@@ -35,8 +34,14 @@ class NotificationRestModel(Schema):
 class NotificationModel:
 
     def __init__(self, notification_type_id: int, source_id: int, message: str, recipients: list,
-                 notification_id: int = None, created_on: str = None):
-
+                 notification_id: int = None):
+        """Constructor for a NotificationModel
+        :param notification_type_id: ID of NotificationType
+        :param source_id: entity_id of source entity
+        :param message: notification message
+        :param recipients: list of User recipients
+        :param notification_id: Primary Key ID of Notification
+        """
         # Required parameters
         self.notification_type_id = notification_type_id
         self.source_id = source_id
@@ -45,18 +50,61 @@ class NotificationModel:
 
         # Optional to model (Could not be created yet
         self.notification_id = notification_id
-        self.created_on = created_on
+
+    def to_rest(self) -> dict:
+        """Creates REST formatted dictionary for return
+        :return: NotificationRestModel of this data
+        """
+        return NotificationRestModel().dump(self)
+
+    def to_db(self) -> 'NotificationDBModel':
+        """Creates a DB model of this data
+        :return: NotificationDBModel of the Notification
+        """
+        db_model = NotificationDBModel()
+        db_model.message = self.message
+        db_model.notification_type_id = self.notification_type_id
+        db_model.source_id = self.source_id
+        db_model.recipients = self.recipients
+
+        # Optional Data of the ID
+        if self.notification_id:
+            db_model.notification_id = self.notification_id
+
+        return db_model
+
+    @classmethod
+    def from_db(cls, db_model: 'NotificationDBModel') -> 'NotificationModel':
+        """Constructor from a DB model
+        :param db_model: NotificationDBModel to construct instance from
+        :return: NotificationModel of the DB record
+        """
+        return NotificationModel(db_model.notification_type_id, db_model.source_id, db_model.message,
+                                 db_model.recipients, db_model.notification_id)
 
 
 class NotificationDBModel(db.Model):
     __tablename__ = 'Notification'
-    notification_id = db.Column(db.Integer, primary_key=True)
-    created_on = db.Column(db.DateTime, nullable=False)
 
-    notification_type_id = db.Column(db.Integer, db.ForeignKey('NotificationType.notification_type_id'))
+    # Inherit Primary Key from entity
+    notification_id = db.Column(db.Integer, db.ForeignKey('Entity.entity_id'), primary_key=True)
+    db.relationship('Entity', backref='Notification', lazy=True)
 
-    # Switch to Forgeign Key when created
-    source_id = db.Column(db.Integer, db.ForeignKey('entity.id'), nullable=False)
+    # Isolated Data
+    message = db.Column(db.String(100), nullable=False)
 
-    # recipients is a one to many relationship
-    recipients = db.relationship('Entity', backref='notification', lazy=True)
+    # Foreign Key Relationsips
+    notification_type_id = db.Column(db.Integer, db.ForeignKey('NotificationType.notification_type_id'), nullable=False)
+    source_id = db.Column(db.Integer, db.ForeignKey('entity.entity_id'), nullable=False)
+
+    # Many to Many Notifications -> Users
+    notification_recipients = db.Table('NotificationHasUser',
+                                       db.Column('user_id', db.Integer, db.ForeignKey('User.user_id'),
+                                                 primary_key=True),
+                                       db.Column('notification_id',
+                                                 db.Integer,
+                                                 db.ForeignKey('Notification.notification_id'),
+                                                 primary_key=True))
+
+    recipients = db.relationship('User', secondary=notification_recipients, lazy='subquery',
+                                 backref=db.backref('notifications', lazy=True))

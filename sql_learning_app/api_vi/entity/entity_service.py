@@ -11,7 +11,7 @@ from sql_learning_app.config import db
 from .entity_model import EntityModel, EntityDBModel
 
 # Local exceptions
-from .entity_exceptions import EntityCreationException
+from .entity_exceptions import EntityCreationException, EntityDoesNotExist
 
 
 class EntityService:
@@ -36,6 +36,19 @@ class EntityService:
         if not db_model:
             raise EntityCreationException(f'Failed to create Entity of type {entity.entity_name}')
         self.logger.info(f'Created a new Entity record with ID {entity.entity_id}')
+        return EntityModel.from_db(db_model)
+
+    def fetch_entity_by_id(self, entity_id: int) -> EntityModel:
+        """Fetches the Entity by ID
+        :return: EntityModel from the DB row
+        :raises: EntityDoesNotExist of no Entity of this type
+        """
+        # Fetch via primary key
+        db_model = EntityDBModel.get(entity_id)
+        if not db_model:
+            self.logger.error(f'Could not fetch Entity with ID {entity_id} because it was not found')
+            raise EntityDoesNotExist(entity_id)
+        self.logger.info(f'Successfully Fetched Entity with id {entity_id}')
         return EntityModel.from_db(db_model)
 
     @staticmethod
