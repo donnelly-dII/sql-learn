@@ -11,12 +11,13 @@ from sql_learning_app.api_vi.common import InvalidRequest
 
 class NotificationTypeRestModel(Schema):
     # Required Parameters
-    entity_table_name = fields.String(required=True)
+    source_entity_name = fields.String(required=True)
     notification_description = fields.String(required=True)
     entity_redirect_uri = fields.String(required=True)
 
     # Optional parameters
     notification_type_id = fields.Integer()
+    active = fields.Boolean(default=True)
     created_on = fields.DateTime()
 
     @post_load
@@ -33,16 +34,16 @@ class NotificationTypeRestModel(Schema):
 
 class NotificationTypeModel:
 
-    def __init__(self, entity_table_name: str, notification_description: str, entity_redirect_uri: str,
+    def __init__(self, source_entity_name: str, notification_description: str, entity_redirect_uri: str,
                  notification_type_id: int = None, created_on: str = None):
         """Constructor for a NotificationTypeModel
-        :param entity_table_name: Name of entity creating notification
+        :param source_entity_name: Name of entity creating notification
         :param notification_description: Action taken on entity to create notification
         :param entity_redirect_uri: URI used for notification redirect
         :param notification_type_id: primary key uid of notification_type
         :param created_on: date notification type added to DB
         """
-        self.entity_table_name = entity_table_name
+        self.source_entity_name = source_entity_name
         self.notification_description = notification_description
         self.entity_redirect_uri = entity_redirect_uri
 
@@ -61,7 +62,7 @@ class NotificationTypeModel:
         """
         db_model = NotificationTypeDBModel()
         db_model.created_on = self.created_on
-        db_model.entity_table_name = self.entity_table_name
+        db_model.source_entity_name = self.source_entity_name
         db_model.notification_description = self.notification_description
         db_model.entity_redirect_uri = self.entity_redirect_uri
 
@@ -76,7 +77,7 @@ class NotificationTypeModel:
         :param db_model:
         :return:
         """
-        return NotificationTypeModel(db_model.entity_table_name, db_model.notification_description,
+        return NotificationTypeModel(db_model.source_entity_name, db_model.notification_description,
                                      db_model.entity_redirect_uri, db_model.notification_type_id, db_model.created_on)
 
 
@@ -84,7 +85,7 @@ class NotificationTypeDBModel(db.Model):
     __tablename__ = 'NotificationType'
     notification_type_id = db.Column(db.Integer, primary_key=True)
     created_on = db.Column(db.DateTime, nullable=False)
-    entity_table_name = db.Column(db.String(50), nullable=False)
+    source_entity_name = db.Column(db.String(50), nullable=False)
     notification_description = db.Column(db.String(50), nullable=False)
     entity_redirect_uri = db.Column(db.String(50), nullable=False)
 

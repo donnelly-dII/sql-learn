@@ -1,1 +1,0 @@
-from .notification_type_model import NotificationTypeModel, NotificationTypeDBModel, NotificationTypeRestModel
