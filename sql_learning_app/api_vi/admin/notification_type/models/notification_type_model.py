@@ -17,7 +17,7 @@ class NotificationTypeRestModel(Schema):
 
     # Optional parameters
     notification_type_id = fields.Integer()
-    active = fields.Boolean()
+    active = fields.Boolean(default=True)
     created_on = fields.DateTime()
 
     @post_load

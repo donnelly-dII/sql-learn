@@ -7,7 +7,7 @@ from flask import current_app, request
 from marshmallow import ValidationError
 
 # Internal packages
-from sql_learning_app.api_vi.notification_type.models import NotificationTypeRestModel
+from sql_learning_app.api_vi.admin.notification_type.models import NotificationTypeRestModel
 from sql_learning_app.api_vi.admin.notification_type.notification_type_service import NotificationTypeService
 
 # Internal Exceptions

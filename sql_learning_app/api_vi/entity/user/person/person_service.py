@@ -31,7 +31,7 @@ class PersonService:
         """
         # First Create a User row
         try:
-            new_user = UserService().create_new_user(UserModel())
+            new_user = UserService().create_new_user(UserModel(PersonDBModel.__tablename__))
         except UserCreationException as err:
             raise PersonCreationException(err)
         # Now Create a Person

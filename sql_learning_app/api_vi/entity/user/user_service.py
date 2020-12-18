@@ -28,7 +28,7 @@ class UserService:
         """
         # First Create a DB record in Entity Table
         try:
-            new_entity = EntityService().create_entity(EntityModel(UserDBModel.__tablename__))
+            new_entity = EntityService().create_entity(EntityModel(user.user_name))
         except EntityCreationException as err:
             raise UserCreationException(f'Failed to create a new User object because an Entity could not be '
                                         f'created with exception {err}')

@@ -19,3 +19,10 @@ class EnableSourceDoesNotExist(BaseApiException):
         msg = f'There is not Entity by the name {name}'
         super().__init__(msg)
         self.status_code = 404
+
+
+class NotificationTypeCreationFailed(BaseApiException):
+
+    def __init__(self, descr: str):
+        msg = f'Failed to create NotificationType {descr}'
+        super().__init__(msg)

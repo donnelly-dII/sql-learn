@@ -11,7 +11,7 @@ from sql_learning_app.api_vi.common import BaseApiException
 from .models import NotificationTypeModel, NotificationTypeDBModel
 
 # Local Exceptions
-from .notification_type_excpetions import EnableSourceDoesNotExist
+from .notification_type_excpetions import EnableSourceDoesNotExist, NotificationTypeCreationFailed
 
 # Other Table Services
 from sql_learning_app.api_vi.entity.entity_service import EntityService
@@ -36,6 +36,11 @@ class NotificationTypeService:
             raise EnableSourceDoesNotExist(notif_type.source_entity_name)
 
         # Write to DB
+        db_model = notif_type.to_db()
+        self.db_session.add(db_model)
+        self.db_session.commit()
+        if not db_model:
+            raise
         try:
             db_model = notif_type.to_db()
             self.db_session.add(db_model)

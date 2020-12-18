@@ -19,8 +19,8 @@ api.add_resource(HelloMessageIdResource, '/hello/message/<int:hello_id>')
 #
 
 # Notification Type Resources
-api.add_resource(NotificationTypeResource, 'admin/notificationtype')
-api.add_resource(NotificationTypeIdResource, '/notificationtype/<int:notification_type_id>')
+api.add_resource(NotificationTypeResource, '/admin/notificationtype')
+api.add_resource(NotificationTypeIdResource, '/admin/notificationtype/<int:notification_type_id>')
 
 #
 # ENTITY RESOURCES / ENDPOINTS
