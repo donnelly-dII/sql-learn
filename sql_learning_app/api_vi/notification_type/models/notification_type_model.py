@@ -89,4 +89,4 @@ class NotificationTypeDBModel(db.Model):
     entity_redirect_uri = db.Column(db.String(50), nullable=False)
 
     # Create one to many relationship with Notifications
-    db.relationhip('Notification', backref='NotificationType', lazy=True)
+    db.relationship('Notification', backref='NotificationType', lazy=True)

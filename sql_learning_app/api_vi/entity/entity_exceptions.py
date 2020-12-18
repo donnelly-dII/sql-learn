@@ -1,0 +1,2 @@
+class EntityCreationException(Exception):
+    pass
