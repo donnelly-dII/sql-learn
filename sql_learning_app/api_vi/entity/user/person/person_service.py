@@ -15,7 +15,7 @@ from ..user_service import UserService
 from ..user_exceptions import UserCreationException
 
 # Local exceptions
-from .person_exceptions import PersonCreationException
+from .person_exceptions import PersonCreationException, PersonNotFound
 
 
 class PersonService:
@@ -43,3 +43,15 @@ class PersonService:
             raise PersonCreationException()
         self.logger.info(f'Successfully Created a new Person object with ID {person_db_model.person_id}')
         return PersonModel.from_db(person_db_model)
+
+    def fetch_by_id(self, person_id: int) -> PersonModel:
+        """Fetches a person by their ID
+        :param person_id:
+        :return:
+        """
+        person_db_model = PersonDBModel.query.get(person_id)
+        if not person_db_model:
+            raise PersonNotFound(person_id)
+        person = PersonModel.from_db(person_db_model)
+        self.logger.info(f'Successfully fetched Person {person.first_name} {person.last_name} by ID {person_id}')
+        return person

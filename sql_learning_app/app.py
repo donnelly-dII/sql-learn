@@ -3,9 +3,9 @@ from flask_restful import Api
 
 # Import Resources
 from .api_vi.hello import HelloResource, HelloMessageResource, HelloMessageIdResource
-from sql_learning_app.api_vi.entity.user.person import PersonResource
+from sql_learning_app.api_vi.entity.user.person import PersonResource, PersonIdResource
 from .api_vi.admin.notification_type import NotificationTypeResource, NotificationTypeIdResource
-from .api_vi.entity.notification import NotificationResource
+from .api_vi.entity.notification import NotificationResource, ClickNotificationResource
 
 
 api_bp = Blueprint("api", __name__)
@@ -30,6 +30,8 @@ api.add_resource(NotificationTypeIdResource, '/admin/notificationtype/<int:notif
 
 # Person Resources
 api.add_resource(PersonResource, '/person')
+api.add_resource(PersonIdResource, '/person/<int:person_id>')
 
 # Notification Resources
 api.add_resource(NotificationResource, '/notification')
+api.add_resource(ClickNotificationResource, '/click/notification/<int:notification_record_id>')

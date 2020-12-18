@@ -1,1 +1,1 @@
-from .resources import NotificationResource
+from .resources import NotificationResource, UserNotificationResource, ClickNotificationResource

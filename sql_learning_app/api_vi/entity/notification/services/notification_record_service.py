@@ -3,7 +3,6 @@
 #
 
 from flask import current_app
-from multiprocessing.pool import ThreadPool
 # Local Imports
 from sql_learning_app.config import db
 from sql_learning_app.api_vi.common import QueueService
@@ -11,10 +10,12 @@ from sql_learning_app.api_vi.common import QueueService
 from ..models import NotificationRecordModel, NotificationRecordDBModel
 
 # Notification Imports
-from ..models import NotificationModel
+from ..models import NotificationModel, NotificationDBModel
+from sql_learning_app.api_vi.admin.notification_type.models import NotificationTypeDBModel, NotificationTypeModel
 
-# User Imports
-from sql_learning_app.api_vi.entity.user.user_model import UserModel
+# Exception imports
+from ..notification_exceptions import NotificationRecordDoesNotExist
+from sql_learning_app.api_vi.admin.notification_type.notification_type_excpetions import NotificationTypeDoesNotExist
 
 # Can make configurable Env variable
 POOL_MAX = 10
@@ -60,3 +61,26 @@ class NotificationRecordService:
 
         # With a new Record, add a message to the Notification Queue
         self.record_queue.enqueue(notification.message, recipient.user_id)
+
+    def fetch_redirect_url(self, notification_record_id: int):
+        """Constructs the 'onClick' redirect url of a notification record
+        :param notification_record_id: DB ID of notification_record
+        :return: redirect url to source entity
+        """
+        notification_query = "select notification_type_id, source_id from learn_sql_schema.Notification " \
+                             "where notification_id=" \
+                             "(Select notification_id from learn_sql_schema.NotificationRecord " \
+                             f"where notification_record_id = {notification_record_id})"
+
+        result = list(self.db_session.execute(notification_query))
+        if len(result) == 0:
+            raise NotificationRecordDoesNotExist(record_id=notification_record_id)
+        type_id = result[0][0]
+        source_id = result[0][1]
+
+        # Now fetch the redirect URL
+        type_model = NotificationTypeDBModel.query.get(type_id)
+        if not type_model:
+            raise NotificationTypeDoesNotExist(type_id)
+        notif_type = NotificationTypeModel.from_db(type_model)
+        return f'{notif_type.entity_redirect_uri}/{source_id}'
