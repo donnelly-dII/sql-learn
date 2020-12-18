@@ -1,1 +1,2 @@
 from .notification_resource import NotificationResource
+from .user_notifications_resource import UserNotificationResource
