@@ -40,14 +40,8 @@ class NotificationTypeService:
         self.db_session.add(db_model)
         self.db_session.commit()
         if not db_model:
-            raise
-        try:
-            db_model = notif_type.to_db()
-            self.db_session.add(db_model)
-            self.db_session.commit()
-            return NotificationTypeModel.from_db(db_model)
-        except Exception as err:
-            print(err)
+            raise NotificationTypeCreationFailed(notif_type.notification_description)
+        return NotificationTypeModel.from_db(db_model)
 
     def get_by_id(self, notification_type_id: int):
         """SELECT a NotificationType record by ID

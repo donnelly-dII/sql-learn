@@ -77,7 +77,7 @@ class NotificationTypeModel:
         :param db_model:
         :return:
         """
-        return NotificationTypeModel(db_model.entity_table_name, db_model.notification_description,
+        return NotificationTypeModel(db_model.source_entity_name, db_model.notification_description,
                                      db_model.entity_redirect_uri, db_model.notification_type_id, db_model.created_on)
 
 
