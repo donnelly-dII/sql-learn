@@ -84,3 +84,14 @@ class NotificationRecordService:
             raise NotificationTypeDoesNotExist(type_id)
         notif_type = NotificationTypeModel.from_db(type_model)
         return f'{notif_type.entity_redirect_uri}/{source_id}'
+
+    def fetch_user_notifications(self, user_id: int) -> list:
+        """
+        :return:
+        """
+        records = NotificationRecordDBModel.query.filter_by(recipient_id=user_id).all()
+        if not records:
+            raise Exception(f"no recoreds found for user {user_id}")
+        record_models = [NotificationRecordModel.from_db(r) for r in records]
+        self.logger.info(f'Fetched all records for User {user_id}')
+        return record_models

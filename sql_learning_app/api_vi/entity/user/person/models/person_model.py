@@ -11,6 +11,7 @@ from sql_learning_app.api_vi.common import InvalidRequest
 
 class PersonRestModel(Schema):
     person_id = fields.Integer()
+    username = fields.String(required=True)
     first_name = fields.String(required=True)
     last_name = fields.String(required=True)
 
@@ -29,7 +30,8 @@ class PersonRestModel(Schema):
 
 class PersonModel:
 
-    def __init__(self, first_name: str, last_name: str = None, person_id: int = None):
+    def __init__(self, username: str, first_name: str, last_name: str = None, person_id: int = None):
+        self.username = username
         self.first_name = first_name
         self.last_name = last_name
 
@@ -47,6 +49,7 @@ class PersonModel:
         :return: PersonDBModel representing this data
         """
         db_model = PersonDBModel()
+        db_model.username = self.username
         db_model.first_name = self.first_name
         db_model.last_name = self.last_name
 
@@ -61,13 +64,14 @@ class PersonModel:
         :param db_model: DB object of a Person
         :return: PersonModel object type of the person
         """
-        return PersonModel(db_model.first_name, db_model.last_name, db_model.person_id)
+        return PersonModel(db_model.username, db_model.first_name, db_model.last_name, db_model.person_id)
 
 
 class PersonDBModel(db.Model):
     __tablename__ = 'Person'
 
     person_id = db.Column(db.Integer, db.ForeignKey('User.user_id'), primary_key=True)
+    username = db.Column(db.Integer, unique=True)
     first_name = db.Column(db.String(45), nullable=False)
     last_name = db.Column(db.String(45), nullable=False)
 

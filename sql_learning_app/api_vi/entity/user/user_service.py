@@ -27,8 +27,9 @@ class UserService:
         :return: Created User with ID
         """
         # First Create a DB record in Entity Table
+        print(user.__dict__)
         try:
-            new_entity = EntityService().create_entity(EntityModel(user.user_name))
+            new_entity = EntityService().create_entity(EntityModel(user.user_type))
         except EntityCreationException as err:
             raise UserCreationException(f'Failed to create a new User object because an Entity could not be '
                                         f'created with exception {err}')
