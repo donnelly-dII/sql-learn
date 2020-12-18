@@ -11,10 +11,9 @@ from sql_learning_app.config import db
 
 class UserModel:
 
-    def __init__(self, user_id: int = None, notifications_enabled: bool = False, created_on: str = None):
+    def __init__(self, user_id: int = None, notifications_enabled: bool = False):
         self.user_id = user_id
         self.notifications_enabled = notifications_enabled
-        self.created_on = created_on
 
     def to_rest(self):
         """Base Table, no serailization
@@ -29,7 +28,6 @@ class UserModel:
         """
         db_model = UserDBModel()
         db_model.notifications_enabled = self.notifications_enabled
-        db_model.created_on = self.created_on
         if self.user_id:
             db_model.user_id = self.user_id
 
@@ -41,7 +39,7 @@ class UserModel:
         :param db_model: DB model representation
         :return: UserModel from DB
         """
-        return UserModel(db_model.user_id, db_model.notifications_enabled, db_model.created_on)
+        return UserModel(db_model.user_id, db_model.notifications_enabled)
 
 
 class UserDBModel(db.Model):
@@ -49,7 +47,6 @@ class UserDBModel(db.Model):
 
     user_id = db.Column(db.Integer, db.ForeignKey('Entity.entity_id'), primary_key=True)
     notifications_enabled = db.Column(db.Boolean, default=False)
-    created_on = db.Column(db.DateTime, nullable=False)
 
     # Add relationship with Entity
     db.relationship('Entity', backref='User', lazy=True)
