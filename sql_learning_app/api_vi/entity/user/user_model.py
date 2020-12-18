@@ -5,8 +5,29 @@
 #       Organization
 #
 
+from marshmallow import Schema, fields, post_load, ValidationError
+
 # Local imports
 from sql_learning_app.config import db
+from sql_learning_app.api_vi.common import InvalidRequest
+
+
+class UserRestModel(Schema):
+    user_id = fields.Integer(required=True)
+    user_name = fields.String(required=True)
+    notifications_enabled = fields.Boolean()
+
+    @post_load
+    def make_notification_model(self, data: dict, **kwargs) -> 'UserModel':
+        """Deserializer for the Hello Object
+        :param data: REST schema as a dictionary
+        :return: NotificationModel object
+        """
+        try:
+            return UserModel(**data)
+        except ValidationError as err:
+            path = kwargs['path'] if 'path' in kwargs.keys() else None
+            raise InvalidRequest(err, path)
 
 
 class UserModel:
@@ -20,8 +41,7 @@ class UserModel:
         """Base Table, no serailization
         :raises: NotImplementedError
         """
-        raise NotImplementedError('ILLEGAL OPERATION : Model "User" cannot be serialized '
-                                  'because it is not accessible by API')
+        return UserRestModel().dump(self)
 
     def to_db(self) -> 'UserDBModel':
         """Converts to the DB model representation
