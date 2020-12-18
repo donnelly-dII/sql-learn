@@ -3,16 +3,13 @@
 #
 
 from flask_restful import Resource
-from flask import current_app, request
-from marshmallow import ValidationError
+from flask import current_app
 
 # Internal packages
-from ..models import NotificationTypeRestModel
-from ..service import NotificationTypeService
+from sql_learning_app.api_vi.admin.notification_type.notification_type_service import NotificationTypeService
 
 # Internal Exceptions
-from sql_learning_app.api_vi.common import BaseApiException, InvalidRequest
-
+from sql_learning_app.api_vi.common import BaseApiException
 
 URI = '/notificationtype/<int:notification_type_id>'
 

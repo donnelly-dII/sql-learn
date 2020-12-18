@@ -6,9 +6,15 @@ from flask import current_app
 
 # Local Imports
 from sql_learning_app.config import db
-from .excpetions import NotificationTypeDoesNotExist
+from sql_learning_app.api_vi.admin.notification_type.notification_type_excpetions import NotificationTypeDoesNotExist
 from sql_learning_app.api_vi.common import BaseApiException
 from .models import NotificationTypeModel, NotificationTypeDBModel
+
+# Local Exceptions
+from .notification_type_excpetions import EnableSourceDoesNotExist
+
+# Other Table Services
+from sql_learning_app.api_vi.entity.entity_service import EntityService
 
 
 class NotificationTypeService:
@@ -24,6 +30,11 @@ class NotificationTypeService:
         # Set current time
         time = datetime.now()
         notif_type.created_on = time
+
+        # Ensure that the Enity Type is real
+        if not EntityService.verify_enable_name(notif_type.source_entity_name):
+            raise EnableSourceDoesNotExist(notif_type.source_entity_name)
+
         # Write to DB
         try:
             db_model = notif_type.to_db()

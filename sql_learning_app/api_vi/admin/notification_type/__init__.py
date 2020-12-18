@@ -1,0 +1,2 @@
+from .resources.notification_type_resource import NotificationTypeResource
+from .resources.notification_type_id_resource import NotificationTypeIdResource
