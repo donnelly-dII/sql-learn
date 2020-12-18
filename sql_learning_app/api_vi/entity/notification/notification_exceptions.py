@@ -17,3 +17,9 @@ class InvalidNotificationType(BaseApiException):
         super().__init__(f'No Notification Type  with id {type_id} could be found. Notifications can only be '
                          f'created from active and valid NtificationTypes')
         self.status_code = 404
+
+
+class NotificationRecordDoesNotExist(BaseApiException):
+    def __init__(self, record_id: int):
+        super().__init__(f'No NotificationRecord  with id {record_id} could be found.')
+        self.status_code = 404
