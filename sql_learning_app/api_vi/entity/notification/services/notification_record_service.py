@@ -9,8 +9,10 @@ from sql_learning_app.api_vi.common import QueueService
 
 from ..models import NotificationRecordModel, NotificationRecordDBModel
 
+from sql_learning_app.api_vi.entity.user.user_model import UserDBModel
+
 # Notification Imports
-from ..models import NotificationModel, NotificationDBModel
+from ..models import NotificationModel, NotificationDBModel, UserNotificationRecord
 from sql_learning_app.api_vi.admin.notification_type.models import NotificationTypeDBModel, NotificationTypeModel
 
 # Exception imports
@@ -84,3 +86,28 @@ class NotificationRecordService:
             raise NotificationTypeDoesNotExist(type_id)
         notif_type = NotificationTypeModel.from_db(type_model)
         return f'{notif_type.entity_redirect_uri}/{source_id}'
+
+    def fetch_user_notifications(self, user_id: int) -> list:
+        """
+        :return:
+        """
+        records = NotificationRecordDBModel.query.filter_by(recipient_id=user_id).all()
+        if not records:
+            raise Exception(f"no recoreds found for user {user_id}")
+
+        # Fetch the user
+        user = UserDBModel.query.get(user_id)
+        username = user.username
+
+        # Now for each NotificationRecord we need to Fetch the Notification to know the message
+        user_notifications = []
+        for record in records:
+            # Fetch the Notification
+            _notif = UserNotificationRecord(user_id, record.notification_record_id, username=username)
+            notification = NotificationDBModel.query.get(record.notification_id)
+            _notif.message = notification.message
+            user_notifications.append(_notif)
+
+        self.logger.info(f'Fetched all records for User {user_id}')
+        return user_notifications
+

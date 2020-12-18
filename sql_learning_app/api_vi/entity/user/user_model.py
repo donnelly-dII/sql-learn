@@ -14,7 +14,8 @@ from sql_learning_app.api_vi.common import InvalidRequest
 
 class UserRestModel(Schema):
     user_id = fields.Integer(required=True)
-    user_name = fields.String(required=True)
+    username = fields.String(required=True)
+    user_type = fields.String(required=True)
     notifications_enabled = fields.Boolean()
 
     @post_load
@@ -32,8 +33,9 @@ class UserRestModel(Schema):
 
 class UserModel:
 
-    def __init__(self, user_name: str, user_id: int = None, notifications_enabled: bool = False):
-        self.user_name = user_name
+    def __init__(self, username: str, user_type: str, user_id: int = None, notifications_enabled: bool = False):
+        self.username = username
+        self.user_type = user_type
         self.user_id = user_id
         self.notifications_enabled = notifications_enabled
 
@@ -48,7 +50,8 @@ class UserModel:
         :return: DB model of this data
         """
         db_model = UserDBModel()
-        db_model.user_name = self.user_name
+        db_model.username = self.username
+        db_model.user_type = self.user_type
         db_model.notifications_enabled = self.notifications_enabled
         if self.user_id:
             db_model.user_id = self.user_id
@@ -61,14 +64,15 @@ class UserModel:
         :param db_model: DB model representation
         :return: UserModel from DB
         """
-        return UserModel(db_model.user_name, db_model.user_id, db_model.notifications_enabled)
+        return UserModel(db_model.username, db_model.user_type, db_model.user_id, db_model.notifications_enabled)
 
 
 class UserDBModel(db.Model):
     __tablename__ = 'User'
 
     user_id = db.Column(db.Integer, db.ForeignKey('Entity.entity_id'), primary_key=True)
-    user_name = db.Column(db.String(45), nullable=False)
+    username = db.Column(db.String(45), nullable=False, unique=True)
+    user_type = db.Column(db.String(45), nullable=False, unique=True)
     notifications_enabled = db.Column(db.Boolean, default=False)
 
     # Add relationship with Entity
