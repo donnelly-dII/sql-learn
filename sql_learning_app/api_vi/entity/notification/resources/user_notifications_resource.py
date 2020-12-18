@@ -29,7 +29,7 @@ class UserNotificationResource(Resource):
         """
         try:
             records = self.record_service.fetch_user_notifications(user_id)
-            return [l.to_rest() for l in records]
+            return [record.to_rest() for record in records]
         except BaseApiException as err:
             self.logger.error(f'Failed to Notification click redirect with error: {err}')
             return err.to_rest()
