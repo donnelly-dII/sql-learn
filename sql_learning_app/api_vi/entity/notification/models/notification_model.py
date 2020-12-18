@@ -7,13 +7,16 @@ from marshmallow import Schema, fields, post_load, ValidationError
 from sql_learning_app.config import db
 from sql_learning_app.api_vi.common import InvalidRequest
 
+# Imports from User
+from sql_learning_app.api_vi.entity.user.user_model import UserDBModel, UserModel, UserRestModel
+
 
 class NotificationRestModel(Schema):
     # Required Parameters
     notification_type_id = fields.Integer(required=True)
     source_id = fields.Integer(required=True)
     message = fields.String(required=True)
-    recipients = fields.List(fields.Integer, required=True)
+    recipients = fields.List(fields.Nested(UserRestModel), required=True)
 
     # Optional parameters
     notification_id = fields.Integer()
@@ -65,7 +68,9 @@ class NotificationModel:
         db_model.message = self.message
         db_model.notification_type_id = self.notification_type_id
         db_model.source_id = self.source_id
-        db_model.recipients = self.recipients
+        # Create DB models
+        for recipient in self.recipients:
+            db_model.recipients.append(recipient.to_db())
 
         # Optional Data of the ID
         if self.notification_id:
@@ -79,8 +84,10 @@ class NotificationModel:
         :param db_model: NotificationDBModel to construct instance from
         :return: NotificationModel of the DB record
         """
+        # Convert Recipients
+        users = [UserModel.from_db(r) for r in db_model.recipients]
         return NotificationModel(db_model.notification_type_id, db_model.source_id, db_model.message,
-                                 db_model.recipients, db_model.notification_id)
+                                 users, db_model.notification_id)
 
 
 class NotificationDBModel(db.Model):
@@ -95,7 +102,7 @@ class NotificationDBModel(db.Model):
 
     # Foreign Key Relationsips
     notification_type_id = db.Column(db.Integer, db.ForeignKey('NotificationType.notification_type_id'), nullable=False)
-    source_id = db.Column(db.Integer, db.ForeignKey('entity.entity_id'), nullable=False)
+    source_id = db.Column(db.Integer, db.ForeignKey('Entity.entity_id'), nullable=False)
 
     # Many to Many Notifications -> Users
     notification_recipients = db.Table('NotificationHasUser',
@@ -106,5 +113,5 @@ class NotificationDBModel(db.Model):
                                                  db.ForeignKey('Notification.notification_id'),
                                                  primary_key=True))
 
-    recipients = db.relationship('User', secondary=notification_recipients, lazy='subquery',
+    recipients = db.relationship('UserDBModel', secondary=notification_recipients, lazy='subquery',
                                  backref=db.backref('notifications', lazy=True))

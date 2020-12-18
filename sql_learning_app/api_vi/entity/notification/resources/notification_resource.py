@@ -14,7 +14,7 @@ from ..notification_service import NotificationService
 from sql_learning_app.api_vi.common import BaseApiException, InvalidRequest
 
 
-class PersonResource(Resource):
+class NotificationResource(Resource):
 
     def __init__(self):
         self.logger = current_app.logger
@@ -29,8 +29,8 @@ class PersonResource(Resource):
         pass
 
     def post(self):
-        """POST to create a new Person object
-        :return: Person Object that is created
+        """POST to create a new Notification object
+        :return: Notificaiton Object that is created
         """
         try:
             data = request.get_json()

@@ -13,7 +13,6 @@ from .entity_model import EntityModel, EntityDBModel
 # Local exceptions
 from .entity_exceptions import EntityCreationException, EntityDoesNotExist
 
-
 class EntityService:
 
     def __init__(self):
@@ -44,7 +43,10 @@ class EntityService:
         :raises: EntityDoesNotExist of no Entity of this type
         """
         # Fetch via primary key
-        db_model = EntityDBModel.get(entity_id)
+        print(entity_id)
+        db_model = EntityDBModel.query.get(entity_id)
+        print('got here')
+        print(db_model)
         if not db_model:
             self.logger.error(f'Could not fetch Entity with ID {entity_id} because it was not found')
             raise EntityDoesNotExist(entity_id)

@@ -57,6 +57,7 @@ class NotificationService:
         :raises: InvalidNotificationType if Notification has invalid notification_type_id
         """
         try:
+            print(notification.source_id)
             EntityService().fetch_entity_by_id(notification.source_id)
             NotificationTypeService().get_by_id(notification.notification_type_id)
 
