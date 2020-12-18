@@ -8,7 +8,7 @@ from marshmallow import ValidationError
 
 # Internal packages
 from ..models import NotificationRestModel
-from ..notification_service import NotificationService
+from sql_learning_app.api_vi.entity.notification.services.notification_service import NotificationService
 
 # Internal Exceptions
 from sql_learning_app.api_vi.common import BaseApiException, InvalidRequest

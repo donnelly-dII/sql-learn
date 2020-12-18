@@ -16,10 +16,12 @@ class NotificationRestModel(Schema):
     notification_type_id = fields.Integer(required=True)
     source_id = fields.Integer(required=True)
     message = fields.String(required=True)
-    recipients = fields.List(fields.Nested(UserRestModel), required=True)
 
     # Optional parameters
     notification_id = fields.Integer()
+
+    # Non DB parameters that are seralized inputs
+    recipients = fields.List(fields.Nested(UserRestModel), required=False)
 
     @post_load
     def make_notification_model(self, data: dict, **kwargs) -> 'NotificationModel':
@@ -36,20 +38,19 @@ class NotificationRestModel(Schema):
 
 class NotificationModel:
 
-    def __init__(self, notification_type_id: int, source_id: int, message: str, recipients: list,
+    def __init__(self, notification_type_id: int, source_id: int, message: str, recipients: list = None,
                  notification_id: int = None):
         """Constructor for a NotificationModel
         :param notification_type_id: ID of NotificationType
         :param source_id: entity_id of source entity
         :param message: notification message
-        :param recipients: list of User recipients
         :param notification_id: Primary Key ID of Notification
         """
         # Required parameters
         self.notification_type_id = notification_type_id
         self.source_id = source_id
         self.message = message
-        self.recipients = recipients
+        self.recipients = recipients if recipients else []
 
         # Optional to model (Could not be created yet
         self.notification_id = notification_id
@@ -68,9 +69,6 @@ class NotificationModel:
         db_model.message = self.message
         db_model.notification_type_id = self.notification_type_id
         db_model.source_id = self.source_id
-        # Create DB models
-        for recipient in self.recipients:
-            db_model.recipients.append(recipient.to_db())
 
         # Optional Data of the ID
         if self.notification_id:
@@ -84,10 +82,8 @@ class NotificationModel:
         :param db_model: NotificationDBModel to construct instance from
         :return: NotificationModel of the DB record
         """
-        # Convert Recipients
-        users = [UserModel.from_db(r) for r in db_model.recipients]
         return NotificationModel(db_model.notification_type_id, db_model.source_id, db_model.message,
-                                 users, db_model.notification_id)
+                                 notification_id=db_model.notification_id)
 
 
 class NotificationDBModel(db.Model):
@@ -103,15 +99,3 @@ class NotificationDBModel(db.Model):
     # Foreign Key Relationsips
     notification_type_id = db.Column(db.Integer, db.ForeignKey('NotificationType.notification_type_id'), nullable=False)
     source_id = db.Column(db.Integer, db.ForeignKey('Entity.entity_id'), nullable=False)
-
-    # Many to Many Notifications -> Users
-    notification_recipients = db.Table('NotificationHasUser',
-                                       db.Column('user_id', db.Integer, db.ForeignKey('User.user_id'),
-                                                 primary_key=True),
-                                       db.Column('notification_id',
-                                                 db.Integer,
-                                                 db.ForeignKey('Notification.notification_id'),
-                                                 primary_key=True))
-
-    recipients = db.relationship('UserDBModel', secondary=notification_recipients, lazy='subquery',
-                                 backref=db.backref('notifications', lazy=True))

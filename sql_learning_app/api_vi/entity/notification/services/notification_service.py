@@ -1,10 +1,15 @@
+#
+# DB Service for the Notification Endpoints
+#
+
+import threading
 from flask import current_app
 
 
 # Local Imports
 from sql_learning_app.config import db
-from .models import NotificationModel, NotificationDBModel
-from .notification_exceptions import NotificationCreationException, InvalidSourceId, InvalidNotificationType
+from sql_learning_app.api_vi.entity.notification.models import NotificationModel, NotificationDBModel
+from sql_learning_app.api_vi.entity.notification.notification_exceptions import NotificationCreationException, InvalidSourceId, InvalidNotificationType
 
 # NotificationType Imports
 from sql_learning_app.api_vi.admin.notification_type.notification_type_service import NotificationTypeService
@@ -12,9 +17,12 @@ from sql_learning_app.api_vi.admin.notification_type.notification_type_excpetion
 
 
 # Entity Imports
-from ..entity_service import EntityService
-from ..entity_model import EntityModel
-from ..entity_exceptions import EntityCreationException, EntityDoesNotExist
+from sql_learning_app.api_vi.entity.entity_service import EntityService
+from sql_learning_app.api_vi.entity.entity_model import EntityModel
+from sql_learning_app.api_vi.entity.entity_exceptions import EntityCreationException, EntityDoesNotExist
+
+# NotificationRecordImports
+from .notification_record_service import NotificationRecordService
 
 
 class NotificationService:
@@ -47,7 +55,17 @@ class NotificationService:
             self.logger.error(f'Failed to Create Notification due to DB error')
             raise NotificationCreationException()
         self.logger.info(f'Successfully created new notification with ID {notification_db_model.notification_id}')
-        return NotificationModel.from_db(notification_db_model)
+        new_notification = NotificationModel.from_db(notification_db_model)
+        new_notification.recipients = notification.recipients
+
+        # Now Kick off the Record run on the new notification
+        record_service = NotificationRecordService()
+        record_service.run_records(new_notification)
+        #run_thread = threading.Thread(target=record_service.run_records, args=(new_notification,))
+        #run_thread.start()
+
+        # Return the notification to the Caller while the record runs in the background
+        return new_notification
 
     def __validate_notification_data(self, notification: NotificationModel):
         """Checks a Notification's data and validates that it is valid and real
@@ -57,7 +75,6 @@ class NotificationService:
         :raises: InvalidNotificationType if Notification has invalid notification_type_id
         """
         try:
-            print(notification.source_id)
             EntityService().fetch_entity_by_id(notification.source_id)
             NotificationTypeService().get_by_id(notification.notification_type_id)
 

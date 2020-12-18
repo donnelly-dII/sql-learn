@@ -1,1 +1,2 @@
 from .notification_model import NotificationModel, NotificationRestModel, NotificationDBModel
+from .notification_record_model import NotificationRecordModel, NotificationRecordRestModel, NotificationRecordDBModel
